@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ app_title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="bg-glow"></div>
+  <header class="topbar">
+    <div class="logo">{{ app_title }}</div>
+    <div class="tagline">{{ app_tagline }}</div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <h1>Discover a better movie night.</h1>
+      <p class="hero-sub">Search a title you love and get curated picks in seconds.</p>
+
+      <form class="search" method="post" action="/recommend" id="search-form">
+        <div class="search-field">
+          <input
+            type="text"
+            name="movie"
+            list="title-suggestions"
+            placeholder="Try: Inception, The Dark Knight, The Matrix"
+            value="{{ query }}"
+            autocomplete="off"
+          >
+          <button type="submit">Recommend</button>
+        </div>
+        <datalist id="title-suggestions">
+          {% for title in titles %}
+            <option value="{{ title }}"></option>
+          {% endfor %}
+        </datalist>
+      </form>
+
+      {% if error %}
+        <div class="alert">{{ error }}</div>
+      {% endif %}
+
+      {% if query and resolved_title and resolved_title|lower != query|lower %}
+        <div class="note">Showing results for <strong>{{ resolved_title }}</strong></div>
+      {% endif %}
+
+      {% if not tmdb_ready %}
+        <div class="note">TMDB API key missing. Posters will use placeholders.</div>
+      {% endif %}
+    </section>
+
+    <section class="results">
+      {% if recommendations %}
+        <div class="results-header">
+          <div class="results-title">Recommended for {{ resolved_title }}</div>
+          <div class="results-count">{{ recommendations|length }} picks</div>
+        </div>
+        <div class="grid">
+          {% for rec in recommendations %}
+            <article
+              class="card"
+              data-title="{{ rec.title }}"
+              data-year="{{ rec.year }}"
+              data-rating="{{ rec.rating }}"
+              data-similarity="{{ rec.similarity_label }}"
+              data-genres="{{ rec.genres }}"
+              data-tagline="{{ rec.tagline }}"
+              data-director="{{ rec.director }}"
+              data-cast="{{ rec.cast }}"
+              data-overview="{{ rec.overview }}"
+            >
+              <div class="poster">
+                {% if rec.poster_url %}
+                  <img src="{{ rec.poster_url }}" alt="{{ rec.title }} poster" loading="lazy">
+                {% else %}
+                  <div class="poster-placeholder">
+                    <span>No poster</span>
+                  </div>
+                {% endif %}
+              </div>
+              <div class="card-body">
+                <div class="card-title">{{ rec.title }}</div>
+                <div class="card-meta">{{ rec.year }} - Rating {{ rec.rating }}</div>
+                {% if rec.similarity_label %}
+                  <div class="card-sim">Similarity {{ rec.similarity_label }}</div>
+                {% endif %}
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <h2>Pick a title to get started.</h2>
+          <p>We will surface similar movies with posters, ratings, and quick details.</p>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+
+  <section class="skeleton" id="loading-state" aria-hidden="true">
+    <div class="skeleton-header">
+      <div class="skeleton-title"></div>
+      <div class="skeleton-count"></div>
+    </div>
+    <div class="grid">
+      {% for _ in range(8) %}
+        <div class="skeleton-card">
+          <div class="skeleton-poster"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div class="modal" id="movie-modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close="true"></div>
+    <div class="modal-panel">
+      <button class="modal-close" type="button" data-close="true">Close</button>
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-sub" id="modal-sub"></div>
+      <div class="modal-overview" id="modal-overview"></div>
+      <div class="modal-meta" id="modal-meta"></div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
