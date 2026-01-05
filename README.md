@@ -46,5 +46,5 @@ Environment variables:
 - APP_TAGLINE (optional)
 
 ## Demo
-Demo: https://your-demo-link.example.com
+Demo: https://cinescopeml.onrender.com/
 Repo: https://github.com/Jdtorres59/ML-Movie-reccomendation-project.git
