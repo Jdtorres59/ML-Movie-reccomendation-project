@@ -4,6 +4,11 @@ const modal = document.getElementById('movie-modal');
 if (form) {
   form.addEventListener('submit', () => {
     document.body.classList.add('is-loading');
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) {
+      btn.textContent = 'Finding matches…';
+      btn.classList.add('btn-loading');
+    }
   });
 }
 
@@ -51,6 +56,24 @@ if (cards.length) {
     card.addEventListener('click', () => openModal(card));
   });
 }
+
+// Prevent overlay clicks from opening the modal
+document.querySelectorAll('.card-overlay').forEach((overlay) => {
+  overlay.addEventListener('click', (e) => e.stopPropagation());
+});
+
+// "More like this" — populate form and trigger a new search
+document.querySelectorAll('.more-like-btn').forEach((btn) => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const title = btn.closest('.card')?.dataset.title;
+    const input = document.querySelector('#search-form input[name="movie"]');
+    if (input && title) {
+      input.value = title;
+      document.getElementById('search-form').requestSubmit();
+    }
+  });
+});
 
 if (modal) {
   modal.addEventListener('click', (event) => {

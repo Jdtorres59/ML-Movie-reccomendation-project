@@ -11,6 +11,7 @@
 </head>
 <body>
   <div class="bg-glow"></div>
+  <div class="grain-overlay"></div>
   <header class="topbar">
     <div class="logo">{{ app_title }}</div>
     <div class="tagline">{{ app_tagline }}</div>
@@ -56,13 +57,14 @@
     <section class="results">
       {% if recommendations %}
         <div class="results-header">
-          <div class="results-title">Recommended for {{ resolved_title }}</div>
-          <div class="results-count">{{ recommendations|length }} picks</div>
+          <div class="results-title">Recommended for <span class="accent-text">{{ resolved_title }}</span></div>
+          <span class="badge-count">{{ recommendations|length }} picks</span>
         </div>
         <div class="grid">
           {% for rec in recommendations %}
             <article
               class="card"
+              style="--i: {{ loop.index0 }}"
               data-title="{{ rec.title }}"
               data-year="{{ rec.year }}"
               data-rating="{{ rec.rating }}"
@@ -81,6 +83,12 @@
                     <span>No poster</span>
                   </div>
                 {% endif %}
+              </div>
+              <div class="card-overlay">
+                <div class="overlay-title">{{ rec.title }}</div>
+                <div class="overlay-meta">{{ rec.year }} &middot; {{ rec.rating }}</div>
+                <div class="sim-badge{%- if rec.similarity * 100 > 50 %} sim-badge--green{%- elif rec.similarity * 100 >= 30 %} sim-badge--yellow{%- else %} sim-badge--red{%- endif %}">{{ rec.similarity_label }}</div>
+                <button class="more-like-btn" type="button">More like this</button>
               </div>
               <div class="card-body">
                 <div class="card-title">{{ rec.title }}</div>
